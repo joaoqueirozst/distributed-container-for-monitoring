@@ -17,8 +17,7 @@ def coletar():
 while True:
     try:
         dados = coletar()
-        requests.post(VM1_URL, json=dados, timeout=5)
-        print(f"Enviado: {dados['host']}")
+        requests.post(f"{VM1_URL}", json=dados, timeout=5)
     except Exception as e:
         print(f"Erro: {e}")
     time.sleep(30)
