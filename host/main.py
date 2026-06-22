@@ -18,6 +18,7 @@ while True:
     try:
         dados = coletar()
         requests.post(f"{VM1_URL}", json=dados, timeout=5)
+        print(f"Dados: {dados}")
     except Exception as e:
         print(f"Erro: {e}")
     time.sleep(30)
