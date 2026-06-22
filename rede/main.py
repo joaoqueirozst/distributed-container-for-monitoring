@@ -1,9 +1,7 @@
-import subprocess, requests, threading, time, socket
-from fastapi import FastAPI
+import subprocess, requests, time, socket
 from datetime import datetime
 
-app = FastAPI()
-VM1_URL = "http://10.10.1.2:8000" # IP VM1
+VM1_URL = "http://10.10.1.2:9000"
 HOSTNAME = socket.gethostname()
 
 def ovs_cmd(cmd):
@@ -24,24 +22,11 @@ def coletar():
         "estatisticas": ovs_cmd("ovs-ofctl dump-ports br0"),
     }
 
-def enviar_periodico():
-    while True:
-        try:
-            dados = coletar()
-            requests.post(f"{VM1_URL}/metricas/rede", json=dados, timeout=5)
-        except Exception as e:
-            print(f"Erro ao enviar: {e}")
-        time.sleep(30)
-
-@app.on_event("startup")
-def startup():
-    t = threading.Thread(target=enviar_periodico, daemon=True)
-    t.start()
-
-@app.get("/metricas")
-def metricas():
-    return coletar()
-
-@app.get("/health")
-def health():
-    return {"status": "ok", "host": HOSTNAME}
+while True:
+    try:
+        dados = coletar()
+        requests.post(f"{VM1_URL}/metricas/rede", json=dados, timeout=5)
+        print(f"Enviado: {dados['timestamp']}")
+    except Exception as e:
+        print(f"Erro: {e}")
+    time.sleep(30)
