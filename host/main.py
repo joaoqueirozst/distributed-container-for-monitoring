@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from datetime import datetime
 
 app = FastAPI()
-VM1_URL = "http://10.0.120.185:8000" # IP VM1
+VM1_URL = "http://10.10.1.2:8000" # IP VM1
 HOSTNAME = socket.gethostname()
 
 def coletar():

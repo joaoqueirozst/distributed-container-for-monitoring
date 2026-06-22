@@ -1,0 +1,13 @@
+# Em cada VM:
+git clone https://github.com/joaoqueirozst/distributed-container-for-monitoring
+cd am
+
+docker build -t host ./host
+docker run -d --network host --name host host
+
+# Switches
+git clone https://github.com/joaoqueirozst/distributed-container-for-monitoring
+cd am
+
+docker build -t rede ./rede
+docker run -d --network host --privileged --name rede rede
