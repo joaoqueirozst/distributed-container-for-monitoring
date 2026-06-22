@@ -8,8 +8,8 @@ def coletar():
     return {
         "agent_id": ID,
         "cpu_percent": psutil.cpu_percent(interval=1),
-        "ram_percent": psutil.virtual_memory()._asdict(),
-        "disk_percent": psutil.disk_usage("/")._asdict(),
+        "ram_percent": psutil.virtual_memory().percent,
+        "disk_percent": psutil.disk_usage("/").percent,
         "connections_tcp": len([c for c in psutil.net_connections() if c.type.name=="SOCK_STREAM"]),
         "uptime_seconds": time.time() - psutil.boot_time(),
     }
