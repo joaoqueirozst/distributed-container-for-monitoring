@@ -1,7 +1,7 @@
 import requests, time, os
 import psutil
 
-VM1_URL = "http://10.0.20.10/api/v1/metrics/network"
+VM1_URL = "http://10.10.1.2/api/v1/metrics/network"
 
 # Mapeamento fixo de interfaces por switch
 INTERFACES_SW1 = [
