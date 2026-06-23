@@ -2,7 +2,7 @@ import psutil, socket, requests, time
 from datetime import datetime
 
 VM1_URL = "http://10.10.1.2/api/v1/metrics/host"
-ID = int(socket.gethostname()[-1])
+ID = int(socket.gethostname()[-1]) # consultar nomes das VMs
 
 def coletar():
     return {
