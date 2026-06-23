@@ -4,6 +4,9 @@ from datetime import datetime
 VM1_URL = "http://10.10.1.2/api/v1/metrics/host"
 ID = int(socket.gethostname()[-1]) # consultar nomes das VMs
 
+if ID == 0:
+    ID == 10
+
 def coletar():
     return {
         "agent_id": ID,
