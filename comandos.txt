@@ -3,6 +3,11 @@ git clone https://github.com/joaoqueirozst/distributed-container-for-monitoring
 cd distributed-container-for-monitoring
 docker build -t host ./host
 docker run -d --network host --name host host
+docker logs -f host
+
+docker stop host && docker rm host
+rm -rf distributed-container-for-monitoring
+docker rmi host
 
 # Switches 1
 git clone https://github.com/joaoqueirozst/distributed-container-for-monitoring
