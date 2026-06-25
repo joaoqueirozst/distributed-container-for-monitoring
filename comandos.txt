@@ -5,7 +5,7 @@ docker build -t host ./host
 docker run -d --network host --name host host
 docker logs -f host
 
-docker stop host && docker rm host
+docker kill host && docker rm host
 rm -rf distributed-container-for-monitoring
 docker rmi host
 
