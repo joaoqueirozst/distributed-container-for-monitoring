@@ -14,7 +14,7 @@ def coletar():
         "ram_percent": psutil.virtual_memory().percent,
         "disk_percent": psutil.disk_usage("/").percent,
         "connections_tcp": len([c for c in psutil.net_connections() if c.type.name=="SOCK_STREAM"]),
-        "uptime_seconds": time.time() - psutil.boot_time(),
+        "uptime_seconds": int(time.time() - psutil.boot_time()),
     }
 
 while True:
