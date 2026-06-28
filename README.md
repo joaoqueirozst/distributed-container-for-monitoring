@@ -82,7 +82,7 @@ Dados: {'agent_id': 1, 'cpu_percent': 1.0, 'ram_percent': 39.0, 'disk_percent': 
 
 Com o agente sendo executado diretamente na `VM1`, que possui uma rota configurada a partir da máquina **local** *labredes*, o container subiu corretamente e os *logs* confirmaram o envio das métricas com status `201`, indicando que a requisição teve sucesso e os dados foram armazenados na API.
 
-Um segundo teste foi realizado para validar, oficialemnte, o funcionamento do agente com uma máquina **externa** (*VM Ubuntu*), ao envio de dados para o *Servidor Central*. Para isso, acesso à *VM Ubuntu* foi realizado em dois passos:
+Um segundo teste foi realizado para validar, oficialmente, o funcionamento do agente com uma máquina **externa** (*VM Ubuntu*), ao envio de dados para o *Servidor Central*. Para isso, acesso à *VM Ubuntu* foi realizado em dois passos:
 1. Conectando à máquina *labredes* via `ssh root@10.10.1.22` (máquina criada por outro aluno), que possui rota para a rede **interna**;
 2. A partir dela, acessa a *VM Ubuntu* em `ssh root@10.0.60.20`, que não é acessível diretamente da máquina **local**.
 
