@@ -14,7 +14,7 @@ O repositório conta com o desenvolvimento de *agentes* distribuídos de monitor
 # Arquitetura
 
 ```
-./
+.
 ├── host/
 │   ├── main.py
 │   ├── Dockerfile
