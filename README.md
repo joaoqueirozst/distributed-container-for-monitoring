@@ -11,6 +11,21 @@ O repositório conta com o desenvolvimento de *agentes* distribuídos de monitor
 | Host   | VM1, VM2, VM3, VM4, VM6, VM7, VM9, VM10 |
 | Rede   | VM-SW1, VM-SW2 |
 
+# Arquitetura
+
+```
+./
+├── host/
+│   ├── main.py
+│   ├── Dockerfile
+│   └── requirements.txt
+├── rede/
+│   ├── main.py
+│   ├── Dockerfile
+│   └── requirements.txt
+└── README.md
+```
+
 # Agente HOST
 
 O Agente de Host é um container Docker desenvolvido em Python, responsável por coletar métricas do sistema operacional da máquina local onde está sendo executado. Ele foi configurado para que, a cada 30s (em *loop*), *coleta* e *envia* automaticamente para a *API* do **Servidor Central (VM1)** as informações de:
