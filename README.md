@@ -140,7 +140,7 @@ docker run joaoqueirozz/host:v2
 
 # Agente REDE
 
-O *agente rede* é responsável por coletar estatísticas de tráfego das *interfaces* dos switches virtuais (*VM_SW1* e *VM_SW2*) e enviá-las para o *Servidor Central (VM1)*. Para isso, utiliza um *mapeamento fixo* que define manualmente quais interfaces existem em cada switch e a qual *VLAN* pertencem. Essas informações de cada interface são baseadas na topologia configurada pelo *Aluno 5*, no OpenStack, e contém dados de:
+O Agente Rede é responsável por coletar estatísticas de tráfego das *interfaces* dos switches virtuais (*VM_SW1* e *VM_SW2*) e enviá-las ao *Servidor Central (VM1)*. Para isso, utiliza um *mapeamento fixo* que define manualmente quais interfaces existem em cada switch e a qual *VLAN* pertencem. Essas informações de cada interface são baseadas na topologia configurada pelo *Aluno 5*, no OpenStack, e contém dados de:
 
 - `agent_id`: identificador do switch (1 para *VM_SW1*, 2 para *VM_SW2*)
 - `interface_name`: nome da interface (ex: `ens3`, `ens4`)
@@ -154,15 +154,23 @@ O mapeamento foi definido de forma *individual* para *cada interface* pois o *sc
 
 > Interfaces sem *VLAN* definida (Firewall, Trunk) recebem `None`.
 
-As configurações realizadas nesta etapa foram parecidas com as feitas anteriormente, mas com algumas modificações. Primeiramente, foi necessária a instalação do Docker, pois *VM_SW1* e *VM_SW2*, por se tratar de *switches virtuais*, não possuiam o Docker instalado. Diferente das demais *VMs* da infraestrutura, em que o Docker já estava disponível.
+As configurações realizadas nesta etapa foram parecidas com as feitas anteriormente, mas com algumas modificações. Primeiramente, foi necessária a instalação do Docker, pois *VM_SW1* e *VM_SW2*, por se tratar de *switches virtuais*, não possuíam o Docker instalado. Diferente das demais *VMs* da infraestrutura, em que o Docker já estava disponível.
 
 ```bash
 apt install docker.io -y
 ```
 
+## Roteamento via Firewall
+
+Durante os testes, identificou-se que o envio direto das requisições do *switch* para a *VM1* era bloqueado pela infraestrutura de rede. Em conjunto com o *Aluno 11*, responsável pelo módulo de *firewall* e roteamento (*VM11*), foi definido que o agente rede não envia os dados diretamente à *VM1*, mas sim à *VM11*, que atua como intermediária e repassa as requisições ao Servidor Central:
+
+```python
+VM11_URL = "http://192.168.10.199:8080/api/v1/metrics/network"
+```
+
 A coleta das estatísticas é realizada pela função `get_interface_stats()`, que utiliza `psutil.net_io_counters(pernic=True)` para retornar as estatísticas de cada interface individualmente. Para cada interface são coletados bytes e pacotes recebidos e enviados. Caso a interface não seja encontrada no sistema, a função retorna zeros para todos os campos.
 
-Também foi implementada a função `coletar_e_enviar()`, que percorre cada interface do mapeamento fixo, monta o `.JSON` com os dados coletados e envia uma requisição `POST` separada para a *VM1* via `requests.post`. Todo esse processo fica em estrutura de *loop*.
+Também foi implementada a função `coletar_e_enviar()`, que percorre cada interface do mapeamento fixo, monta o `.JSON` com os dados coletados e envia uma requisição `POST` separada para a *VM11* via `requests.post`. Todo esse processo fica em estrutura de *loop*.
 
 ## Dockerfile
 
@@ -173,9 +181,9 @@ Da forma semelhante ao que foi feito no *agente host*, este agente também foi e
 | Comando | Descrição |
 |---------|-----------|
 | `cd distributed-container-for-monitoring` | Entra na pasta do repositório |
-| `docker build -t host ./rede` | Constrói a imagem Docker do agente rede |
-| `docker run -d --network host --privileged --name rede -e SWITCH=sw2 rede` | Sobe o container em background, com condição para saber qual *SW* |
-| `docker logs -f rede` | Acompanha os logs em tempo real |
+| `docker build -t rede-sawsocket ./rede` | Constrói a imagem Docker do agente rede |
+| `docker run -d --network host --privileged --name rede-rawsocket -e SWITCH=sw2 rede-rawsocket` | Sobe o container em background, com condição para saber qual *SW* |
+| `docker logs -f rede-rawsocket` | Acompanha os logs em tempo real |
 
 ## Testes
 
@@ -189,44 +197,21 @@ scp -r ~/distributed-container-for-monitoring root@192.168.10.105:~
 
 Para acessar *SW2*: `ssh root@10.10.1.38`
 
-Ao rodar o agente com o comando `docker logs -f rede`, a seguinte saída foi observada:
+Ao rodar o agente com o comando `docker logs -f rede-rawsocket`, a seguinte saída foi observada:
 
 ```bash
-Erro ens3: [Errno 104] Connection aborted., ConnectionResetError(104, 'Connection reset by peer')
-Erro ens4: [Errno 104] Connection aborted., ConnectionResetError(104, 'Connection reset by peer')
-Erro ens5: [Errno 104] Connection aborted., ConnectionResetError(104, 'Connection reset by peer')
+Enviado ens3: 201
+Enviado ens4: 201
+Enviado ens5: 201
+Enviado ens6: 201
+Enviado ens7: 201
+Enviado ens8: 201
+Enviado ens9: 201
+Enviado ens10: 201
+Enviado ens11: 201
+Enviado ens15: 201
 [...]
 ```
-
-Analisando a saída, o erro `Connection reset by peer` indica que o *SW2* conseguiu chegar até o destino (*VM1*), mas a conexão foi fechada imediatamente pelo servidor. Isso significa que a requisição saiu corretamente do agente, porém foi bloqueada ou rejeitada antes de ser processada pela API. O provável motivo é que, no momento que foi realizado o teste, o roteamento entre *VLANS* ainda não havia sido completamente configurado pelo *Aluno 11*, impedindo que a requisição fosse aceita pela *VM1*.
-
-Para fins comparativos, pela API do *Aluno 1*, esperava-se uma saída semelhante à indicada:
-
-```bash
-{
-    "interface_name": "ens15",
-    "vlan_id": null,
-    "id": 739,
-    "agent_id": 2,
-    "bytes_out": 37065743,
-    "packets_out": 359343,
-    "bytes_in": 414681296,
-    "packets_in": 465085,
-    "collected_at": "2026-06-25T18:09:18.275668"
-  }
-
-```
-
-Vale ressaltar que este erro visto anteriormente não invalida a implementação do *agente rede*. O possível problema está na camada de rede da infraestrutura, dependendo da configuração do *Aluno 11* para liberar o tráfego entre o SW2 e a VM1.
-
-Após isso, o mesmo processo realizado para construção da imagem no Docker Hub foi feita para o *agente rede*, com os comandos indicados na tabela abaixo.
-
-| Comando | Descrição |
-|---------|-----------|
-| `docker build -t joaoqueirozz/rede:v1 .` | Constrói a imagem com a tag do Docker Hub |
-| `docker push joaoqueirozz/host:v1` | Publica a imagem no Docker Hub |
-
-E para o usuário usar a imagem criada:
 
 ```bash
 docker pull joaoqueirozz/rede:v1
