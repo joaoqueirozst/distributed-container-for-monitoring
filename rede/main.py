@@ -1,7 +1,7 @@
 import requests, time, os
 import psutil
 
-VM1_URL = "http://10.0.20.10/api/v1/metrics/network"
+VM11_URL = "http://192.168.10.199:8080/api/v1/metrics/network"
 
 # Mapeamento fixo de interfaces por switch
 INTERFACES_SW1 = [
@@ -31,10 +31,10 @@ INTERFACES_SW2 = [
 SWITCH = os.getenv("SWITCH", "sw1")
 
 if SWITCH == "sw1":
-    AGENT_ID = 1
+    AGENT_ID = 11
     INTERFACES = INTERFACES_SW1
 else:
-    AGENT_ID = 2
+    AGENT_ID = 22
     INTERFACES = INTERFACES_SW2
 
 def get_interface_stats(iface):
