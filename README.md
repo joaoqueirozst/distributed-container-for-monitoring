@@ -213,7 +213,18 @@ Enviado ens15: 201
 [...]
 ```
 
+O status `201` retornado em todas as interfaces confirma que as requisições foram recebidas e processadas com sucesso pela *VM11*, que repassou os dados corretamente à *VM1*, validando o funcionamento completo do Agente de Rede.
+
+Por fim, com o código devidamente corrigido e testado, a imagem do Agente de Rede foi reconstruída e publicada no *Docker Hub*, atualizando a versão anterior:
+
+| Comando | Descrição |
+|---------|-----------|
+| `docker build -t joaoqueirozz/rede:v2 .` | Constrói a imagem com a tag do Docker Hub |
+| `docker push joaoqueirozz/rede:v2` | Publica a imagem no Docker Hub |
+
+E para o usuário usar a imagem criada:
+
 ```bash
-docker pull joaoqueirozz/rede:v1
-docker run joaoqueirozz/rede:v1
+docker pull joaoqueirozz/rede:v2
+docker run joaoqueirozz/rede:v2
 ```
